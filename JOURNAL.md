@@ -1,4 +1,4 @@
-## Week 7 — Issue selection
+## Week 7 - Issue selection
 
 **Issue link:** https://github.com/ascherj/pathreview/issues/88
 
@@ -14,3 +14,17 @@ The `POST /reviews` endpoint currently has no test coverage for the case where a
 **Setup confirmation:** [x] App runs locally at localhost:5173
 
 **Cohort ledger:** [ ] Issue added to cohort ledger
+
+## Week 8 - Reproduction & solution planning
+
+**Reproduction commit link:** https://github.com/Nolawikk/pathreview/commit/b5dc331
+
+**Reproduction summary:**
+I traced the bug by reading through `api/routes/reviews.py` and `core/services/review_service.py`. I found that `_run_agent_orchestration` and `_run_rag_retrieval_generation` are placeholder functions that ignore their input entirely, so I wrote a test calling them directly with an empty ingestion results list (simulating a profile with no documents). The test confirmed both functions still return fabricated, non-empty feedback and a normal-looking score, even with zero real input data.
+
+**PLAN.md link:** https://github.com/Nolawikk/pathreview/blob/test/88-reviews-no-documents-test/PLAN.md
+
+**Walkthrough video (recommended):** [not recorded]
+
+**Blockers or open questions:**
+Still unsure whether the correct fix is a new "no_data" status or reusing the existing "failed" status - need to check the Review model and how the frontend displays failure states before finalizing the plan.
