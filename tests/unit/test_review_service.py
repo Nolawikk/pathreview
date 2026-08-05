@@ -1,4 +1,4 @@
-"""Tests for review_service.py"""
+﻿"""Tests for review_service.py"""
 
 from unittest.mock import AsyncMock, Mock, patch
 from uuid import uuid4
@@ -9,6 +9,7 @@ from core.services.review_service import (
     create_review,
     get_review,
     list_reviews,
+    process_review,
 )
 
 
@@ -376,3 +377,44 @@ class TestReviewService:
         assert len(rag_output["sections"]) > 0
         assert rag_output["overall_score"] is not None
         assert rag_output["overall_score"] > 0
+
+    @pytest.mark.asyncio
+    async def test_process_review_marks_failed_when_no_ingested_sources(self, mock_db_session):
+        """Fix verification for issue #88.
+
+        When _run_ingestion_pipeline returns no sources for a profile,
+        process_review should mark the review as "failed" and return
+        early, rather than proceeding to fabricate placeholder feedback.
+        """
+        review_id = uuid4()
+        profile_id = uuid4()
+
+        mock_review = Mock()
+        mock_review.id = review_id
+        mock_review.status = "pending"
+
+        mock_profile = Mock()
+        mock_profile.id = profile_id
+        mock_profile.github_username = None
+        mock_profile.portfolio_url = None
+        mock_profile.resume_text = None
+
+        review_result = Mock()
+        review_result.scalars.return_value.first.return_value = mock_review
+
+        profile_result = Mock()
+        profile_result.scalars.return_value.first.return_value = mock_profile
+
+        mock_db_session.execute = AsyncMock(side_effect=[review_result, profile_result])
+        mock_db_session.commit = AsyncMock()
+        mock_db_session.add = Mock()
+
+        with patch(
+            "core.services.review_service._run_ingestion_pipeline",
+            new=AsyncMock(return_value=[]),
+        ):
+            await process_review(mock_db_session, review_id, profile_id)
+
+        assert mock_review.status == "failed"
+
+
