@@ -41,3 +41,19 @@ Open a draft PR and request peer/mentor feedback via Slack. Consider sub-task 5 
 
 **Blockers:**
 None currently - the fix is implemented and tested. Waiting on peer feedback before finalizing the PR.
+
+### Check-in 2 (end of week)
+
+**PR link:** https://github.com/ascherj/pathreview/pull/983
+
+**Branch:** test/88-reviews-no-documents-test
+
+**What you built:**
+Added a check in `process_review` that detects when a profile has no ingested sources (no GitHub username, portfolio URL, or resume text) and marks the review as `status="failed"` with a logged reason, instead of proceeding to placeholder agent/RAG functions that previously fabricated generic "complete" feedback regardless of input.
+
+**Tests added or updated:**
+Added `test_process_review_marks_failed_when_no_ingested_sources` to `tests/unit/test_review_service.py`, verifying the fix. Kept the existing reproduction test documenting the original bug for reference.
+
+**Self-review confirmation:** [x] make check passes  [x] make test-unit passes
+
+**Draft PR feedback received from:** Posted in dts-su26-ai201-program-help-2a Slack channel, awaiting response
