@@ -28,3 +28,16 @@ I traced the bug by reading through `api/routes/reviews.py` and `core/services/r
 
 **Blockers or open questions:**
 Still unsure whether the correct fix is a new "no_data" status or reusing the existing "failed" status - need to check the Review model and how the frontend displays failure states before finalizing the plan.
+
+## Week 9 - Solution building & PR submission
+
+### Check-in 1 (mid-week)
+
+**Current progress:**
+Sub-tasks 1-4 from PLAN.md are complete. I added a guard in `process_review` (`core/services/review_service.py`) that checks if `_run_ingestion_pipeline` returns an empty list, and if so, marks the review as `status="failed"` and returns early instead of proceeding to the placeholder agent/RAG functions. I added a new test, `test_process_review_marks_failed_when_no_ingested_sources`, confirming this behavior, alongside the existing reproduction test that documents the original bug. Ran the full test suite (`make test-unit`) and confirmed no new failures: 53 pre-existing failures remain unchanged, and my new test brings the passing count from 376 to 377. Also ran `make check` and confirmed the lint error count is unchanged at 179 (all pre-existing, unrelated to my change).
+
+**Next steps:**
+Open a draft PR and request peer/mentor feedback via Slack. Consider sub-task 5 (manual verification through the running app) as a nice-to-have before finalizing.
+
+**Blockers:**
+None currently - the fix is implemented and tested. Waiting on peer feedback before finalizing the PR.
